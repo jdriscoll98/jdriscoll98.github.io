@@ -6,3 +6,26 @@ jobs:
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
+  deploy:
+     machine:
+       enabled: true
+     steps:
+       - add_ssh_keys:
+            fingerprints:
+              - "69:43:58:1d:9b:ec:b4:7d:94:50:30:7a:b0:58:61:d0"
+       - run:
+           name: Deploy Over SSH
+           command: |
+             ssh $SSH_USER@$SSH_HOST cd /srv/webroot/jdriscoll98.github.io && git pull 
+
+  workflows:
+    version: 2
+    build-and-deploy:
+      jobs:
+        - build
+        - deploy:
+            requires:
+              - build # only deploy once build job has completed
+            filters:
+              branches:
+                only: master # only deploy on the master branch
